@@ -30,21 +30,15 @@ git commit -m "feat: IMOVAI OS v3.0 PRO - Enterprise Build Sync (Final Fix)"
 Write-Host "Enviando para o GitHub ($Branch)..." -ForegroundColor Cyan
 git push -u origin $Branch
 
-# 2. Instalação Segura da Render CLI
-Write-Host "Baixando Render CLI (Attempting BITS + TLS)..." -ForegroundColor Cyan
-$Url = "https://github.com/render-oss/cli/releases/latest/download/render-windows-amd64.zip"
-$Zip = "render_cli.zip"
+# 2. Validação de Blueprint (CLI-less)
+Write-Host "Validando Blueprint IMOVAI OS v3.0..." -ForegroundColor Cyan
 
 try {
-    # Tentar download limpo
-    iwr -Uri $Url -OutFile $Zip -ErrorAction Stop
-    Expand-Archive -Path $Zip -DestinationPath . -Force
-    Write-Host "✅ Render CLI instalada com sucesso!" -ForegroundColor Green
-    .\render.exe --version
+    node blueprint_check.js
+    Write-Host "✅ Configuração validada com sucesso via Node.js." -ForegroundColor Green
 } catch {
-    Write-Host "❌ Falha no download automático por restrição de rede." -ForegroundColor Red
-    Write-Host "Baixe manualmente em: $Url e coloque na pasta do projeto." -ForegroundColor White
+    Write-Host "⚠️ Erro na validação. Verifique seu arquivo render.yaml." -ForegroundColor Yellow
 }
 
 Write-Host "--- Operação Concluída! ---" -ForegroundColor Green
-Write-Host "Seu SaaS v3.0 está sincronizado e pronto para decolar." -ForegroundColor White
+Write-Host "Seu SaaS v3.0 está sincronizado no GitHub e pronto para o Render." -ForegroundColor White

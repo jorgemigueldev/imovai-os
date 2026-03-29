@@ -2,7 +2,7 @@ services:
   # Backend - Node.js Express + tRPC
   - type: web
     name: imovai-backend
-    env: node
+    runtime: node
     plan: free
     buildCommand: cd backend && npm install && npx prisma generate && npm run build
     startCommand: cd backend && npm start
@@ -21,10 +21,10 @@ services:
   # Frontend - Next.js App Router (Static)
   - type: web
     name: imovai-frontend
-    env: static
+    runtime: static
     plan: free
     buildCommand: cd frontend && npm install && npm run build
-    staticPublishPath: frontend/out
+    publishPath: frontend/out
     envVars:
       - key: NEXT_PUBLIC_API_URL
         value: https://imovai-backend.onrender.com
@@ -32,3 +32,10 @@ services:
 databases:
   - name: imovai-db
     plan: free
+    ipAllowList:
+      - source: 74.220.48.0/24
+        description: Acesso Externo Seguro 1
+      - source: 74.220.56.0/24
+        description: Acesso Externo Seguro 2
+      - source: 0.0.0.0/0
+        description: Acesso Público (Necessário para planos Free)
