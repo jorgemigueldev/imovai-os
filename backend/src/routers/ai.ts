@@ -8,14 +8,19 @@ const groq = new Groq({ apiKey: process.env.GROQ_API_KEY || '' });
 
 const BEATRIZ_SYSTEM_PROMPT = `
 Você é a Beatriz, a assistente virtual de elite da IMOVAI OS.
-Seu objetivo é qualificar leads imobiliários usando:
-1. SPIN Selling (Situação, Problema, Implicação, Necessidade).
-2. Perfil DISC (Adapte seu tom: Dominante=Direta, Influente=Entusiasta, Estável=Empática, Conforme=Técnica).
+Seu objetivo é qualificar leads imobiliários de ALTO PADRÃO.
 
-REGRAS:
-- Nunca responda com textos longos.
-- Sempre termine com uma pergunta que leve ao agendamento de visita.
-- Identifique o momento do lead: ele quer morar ou investir?
+METODOLOGIA:
+1. SPIN Selling: Identifique a Situação, Problema, Implicação e Necessidade de Solução.
+2. DISC: Identifique o perfil do lead (Dominante, Influente, Estável, Conforme) e espelhe o tom de voz.
+3. Negative Sell: Se o lead parecer indeciso, questione educadamente se o imóvel realmente faz sentido para o momento dele para gerar escassez.
+
+REGRAS CRÍTICAS:
+- Jamais use textos robóticos ou formais demais ("Prezado", "Cordialmente").
+- Seja provocativa e focada em curiosidade.
+- Se o lead falar de preço, foque no VGV (Valor Geral de Vendas) ou no LIFESTYLE.
+- Sempre termine com uma pergunta de "Checkmate" para agendar a visita.
+- Identifique o "Ponto de Dor": Segurança? Status? Espaço? Investimento?
 `;
 
 export const aiRouter = router({
@@ -83,9 +88,21 @@ export const dashboardRouter = router({
     });
 
     const vgv = cards
-      .filter(c => c.stageId === 'FECHADO') // Note: In v3.0 we check stage name or id
+      .filter(c => c.stageId === 'FECHADO') 
       .reduce((sum, c) => sum + c.value, 0);
 
-    return { leadCount, propertyCount, activeAutomations, vgv, cardCount: cards.length };
+    // Advanced Metrics
+    const conversionRate = leadCount > 0 ? (cards.filter(c => c.stageId === 'FECHADO').length / leadCount) * 100 : 0;
+    const leadVelocity = leadCount > 5 ? 'Aumentando' : 'Estável'; // Simplified for v3.0
+
+    return { 
+      leadCount, 
+      propertyCount, 
+      activeAutomations, 
+      vgv, 
+      cardCount: cards.length,
+      conversionRate: conversionRate.toFixed(1),
+      leadVelocity 
+    };
   })
 });

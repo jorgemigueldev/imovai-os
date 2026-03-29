@@ -7,7 +7,9 @@ import {
   CheckCircle, 
   MessageSquare, 
   Home, 
-  Layers
+  Layers,
+  Zap,
+  Target
 } from 'lucide-react';
 import { trpc } from '../utils/trpc';
 import { motion } from 'framer-motion';
@@ -21,7 +23,7 @@ export default function DashboardPage() {
     <div className="flex bg-dark-bg text-dark-text min-h-screen">
       {/* Sidebar Placeholder (Componentizing would be better but keeping it cohesive) */}
       <aside className="w-64 bg-dark-card border-r border-dark-border min-h-screen p-6 hidden md:block">
-        <h1 className="text-2xl font-bold text-primary-500 mb-10">IMOVAI OS v2.0</h1>
+        <h1 className="text-2xl font-bold bg-gradient-to-r from-primary-400 to-emerald-400 bg-clip-text text-transparent mb-10">IMOVAI OS v3.0 PRO</h1>
         <nav className="space-y-4">
           <SidebarLink icon={<Home size={18}/>} label="Dashboard" active />
           <SidebarLink icon={<Users size={18}/>} label="CRM" />
@@ -51,6 +53,16 @@ export default function DashboardPage() {
             title="VGV Total" 
             value={`R$ ${((stats.data?.vgv || 0) / 1000000).toFixed(1)}M`} 
             icon={<TrendingUp className="text-emerald-400" />} 
+          />
+          <KpiCard 
+            title="Taxa de Conversão" 
+            value={`${stats.data?.conversionRate || 0}%`} 
+            icon={<Target className="text-rose-400" />} 
+          />
+          <KpiCard 
+            title="Lead Velocity" 
+            value={stats.data?.leadVelocity || 'Estável'} 
+            icon={<Zap className="text-yellow-400" />} 
           />
         </div>
 
