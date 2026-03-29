@@ -1,0 +1,223 @@
+// IMOVAI OS v3.0 - Enterprise Schema Prisma
+// Optimized for Render.com (PostgreSQL)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Company {
+  id          String   @id @default(uuid())
+  name        String
+  subdomain   String?  @unique
+  logo        String?
+  createdAt   DateTime @default(now())
+  
+  // Relationships
+  users       User[]
+  leads       Lead[]
+  properties  Property[]
+  pipelines   Pipeline[]
+  aiLogs      AiLog[]
+  workflows   Workflow[]
+  whatsapp    WhatsappSession?
+  subscription Subscription?
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   @default("USER") // ADMIN, MANAGER, USER
+  company   Company  @relation(fields: [companyId], references: [id])
+  companyId String
+  createdAt DateTime @default(now())
+}
+
+model Lead {
+  id                String    @id @default(uuid())
+  name              String
+  phone             String
+  email             String?
+  source            String?   // WhatsApp, Facebook, Instagram, Organic
+  score             Int       @default(0)
+  behavioralProfile String?   // DISC
+  lastSummary       String?   // AI Summary
+  status            String    @default("NEW")
+  company           Company   @relation(fields: [companyId], references: [id])
+  companyId         String
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  messages          LeadMessage[]
+  cards             PipelineCard[]
+  visits            Visit[]
+  proposals         Proposal[]
+}
+
+model LeadMessage {
+  id        String   @id @default(uuid())
+  content   String
+  role      String   // USER, ASSISTANT, SYSTEM
+  type      String   @default("TEXT") // TEXT, AUDIO, IMAGE
+  transcription String?
+  timestamp DateTime @default(now())
+  lead      Lead     @relation(fields: [leadId], references: [id])
+  leadId    String
+}
+
+model Property {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  price       Float
+  area        Float?
+  rooms       Int?
+  bathrooms   Int?
+  city        String
+  neighborhood String
+  type        String?  // APARTMENT, HOUSE, LAND
+  status      String   @default("AVAILABLE") // AVAILABLE, SOLD, RENTED
+  company     Company  @relation(fields: [companyId], references: [id])
+  companyId   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Pipeline {
+  id        String   @id @default(uuid())
+  name      String
+  company   Company  @relation(fields: [companyId], references: [id])
+  companyId String
+  stages    PipelineStage[]
+}
+
+model PipelineStage {
+  id        String   @id @default(uuid())
+  name      String
+  order     Int
+  pipeline  Pipeline @relation(fields: [pipelineId], references: [id])
+  pipelineId String
+  cards     PipelineCard[]
+}
+
+model PipelineCard {
+  id        String   @id @default(uuid())
+  title     String
+  value     Float    @default(0)
+  stage     PipelineStage @relation(fields: [stageId], references: [id])
+  stageId   String
+  lead      Lead     @relation(fields: [leadId], references: [id])
+  leadId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Visit {
+  id        String   @id @default(uuid())
+  date      DateTime
+  location  String?
+  status    String   @default("SCHEDULED")
+  lead      Lead     @relation(fields: [leadId], references: [id])
+  leadId    String
+  createdAt DateTime @default(now())
+}
+
+model Proposal {
+  id        String    @id @default(uuid())
+  value     Float
+  content   String?
+  status    String    @default("PENDING")
+  lead      Lead      @relation(fields: [leadId], references: [id])
+  leadId    String
+  createdAt DateTime  @default(now())
+}
+
+// Low-Code Automation Engine
+model Workflow {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  active      Boolean  @default(false)
+  triggerType String   // NEW_LEAD, STAGE_CHANGE, INCOMING_WS
+  company     Company  @relation(fields: [companyId], references: [id])
+  companyId   String
+  nodes       WorkflowNode[]
+  edges       WorkflowEdge[]
+  logs        WorkflowLog[]
+  createdAt   DateTime @default(now())
+}
+
+model WorkflowNode {
+  id          String   @id @default(uuid())
+  type        String   // TRIGGER, ACTION, CONDITION
+  actionType  String?  // SEND_WS, UPDATE_LEAD, DELAY
+  config      String?  // JSON
+  x           Float
+  y           Float
+  workflow    Workflow @relation(fields: [workflowId], references: [id])
+  workflowId  String
+}
+
+model WorkflowEdge {
+  id          String   @id @default(uuid())
+  source      String
+  target      String
+  workflow    Workflow @relation(fields: [workflowId], references: [id])
+  workflowId  String
+}
+
+model WorkflowLog {
+  id          String   @id @default(uuid())
+  status      String   // SUCCESS, ERROR
+  message     String?
+  workflow    Workflow @relation(fields: [workflowId], references: [id])
+  workflowId  String
+  createdAt   DateTime @default(now())
+}
+
+model AiLog {
+  id        String   @id @default(uuid())
+  provider  String
+  model     String
+  prompt    String
+  response  String
+  tokens    Int      @default(0)
+  company   Company  @relation(fields: [companyId], references: [id])
+  companyId String
+  createdAt DateTime @default(now())
+}
+
+model WhatsappSession {
+  id        String   @id @default(uuid())
+  company   Company  @relation(fields: [companyId], references: [id])
+  companyId String   @unique
+  data      String?  // Baileys Session
+  status    String   @default("DISCONNECTED")
+}
+
+// Monetization Structure
+model Subscription {
+  id            String   @id @default(uuid())
+  status        String   // ACTIVE, CANCELLED, PAST_DUE
+  plan          Plan     @relation(fields: [planId], references: [id])
+  planId        String
+  company       Company  @relation(fields: [companyId], references: [id])
+  companyId     String   @unique
+  currentPeriodEnd DateTime
+}
+
+model Plan {
+  id            String   @id @default(uuid())
+  name          String   // FREE, PRO, ENTERPRISE
+  price         Float
+  maxUser       Int      @default(1)
+  maxLead       Int      @default(50)
+  maxWorkflow   Int      @default(1)
+  subscriptions Subscription[]
+}
