@@ -30,14 +30,14 @@ git commit -m "feat: IMOVAI OS v3.0 PRO - Enterprise Build Sync (Final Fix)"
 Write-Host "Enviando para o GitHub ($Branch)..." -ForegroundColor Cyan
 git push -u origin $Branch
 
-# 2. Validação de Blueprint (CLI-less)
-Write-Host "Validando Blueprint IMOVAI OS v3.0..." -ForegroundColor Cyan
+# 2. Validação de Blueprint (Zero-Dependencies)
+Write-Host "Validando Blueprint IMOVAI OS v3.3..." -ForegroundColor Cyan
 
 try {
-    node blueprint_check.js
-    Write-Host "✅ Configuração validada com sucesso via Node.js." -ForegroundColor Green
+    node blueprint_check.mjs
+    Write-Host "✅ Configuração validada com sucesso via Node.js nativo (ESM)." -ForegroundColor Green
 } catch {
-    Write-Host "⚠️ Erro na validação. Verifique seu arquivo render.yaml." -ForegroundColor Yellow
+    Write-Host "⚠️ Erro na validação técnica." -ForegroundColor Yellow
 }
 
 Write-Host "--- Operação Concluída! ---" -ForegroundColor Green
