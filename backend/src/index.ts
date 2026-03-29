@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import { PrismaClient } from '@prisma/client';
 import { Groq } from 'groq-sdk';
 import { makeWASocket, DisconnectReason, useMultiFileAuthState } from '@whiskeysockets/baileys';
-import { pino } from 'pino';
+import pino from 'pino';
 import path from 'path';
 import multer from 'multer';
 import * as xlsx from 'xlsx';

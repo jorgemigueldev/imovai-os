@@ -5,7 +5,7 @@ import { appRouter } from './root.js';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { makeWASocket, useMultiFileAuthState, DisconnectReason } from '@whiskeysockets/baileys';
-import { pino } from 'pino';
+import pino from 'pino';
 import { PrismaClient } from '@prisma/client';
 
 dotenv.config();
